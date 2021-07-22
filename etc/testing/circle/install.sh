@@ -17,11 +17,6 @@ sudo apt-get install -y -qq \
   pv \
   shellcheck
 
-## Install Go
-wget https://dl.google.com/go/go1.16.6.linux-amd64.tar.gz 
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf go1.16.6.linux-amd64.tar.gz
-
 # Install fuse
 sudo modprobe fuse
 sudo chmod 666 /dev/fuse
