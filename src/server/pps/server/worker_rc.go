@@ -10,7 +10,6 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 	client "github.com/pachyderm/pachyderm/v2/src/client"
-	"github.com/pachyderm/pachyderm/v2/src/enterprise"
 	"github.com/pachyderm/pachyderm/v2/src/internal/config"
 	"github.com/pachyderm/pachyderm/v2/src/internal/deploy/assets"
 	"github.com/pachyderm/pachyderm/v2/src/internal/errors"
@@ -251,10 +250,6 @@ func (a *apiServer) workerPodSpec(options *workerOptions, pipelineInfo *pps.Pipe
 		sidecarVolumeMounts = append(sidecarVolumeMounts, emptyDirVolumeMount)
 		userVolumeMounts = append(userVolumeMounts, emptyDirVolumeMount)
 	}
-	secretVolume, secretMount := assets.GetBackendSecretVolumeAndMount(a.storageBackend)
-	options.volumes = append(options.volumes, secretVolume)
-	sidecarVolumeMounts = append(sidecarVolumeMounts, secretMount)
-	userVolumeMounts = append(userVolumeMounts, secretMount)
 
 	// mount secret for spouts using pachctl
 	if pipelineInfo.Details.Spout != nil {
@@ -291,13 +286,7 @@ func (a *apiServer) workerPodSpec(options *workerOptions, pipelineInfo *pps.Pipe
 	if a.workerUsesRoot {
 		securityContext = &v1.PodSecurityContext{RunAsUser: &zeroVal}
 	}
-	resp, err := a.env.GetPachClient(context.Background()).Enterprise.GetState(context.Background(), &enterprise.GetStateRequest{})
-	if err != nil {
-		return v1.PodSpec{}, err
-	}
-	if resp.State != enterprise.State_ACTIVE {
-		workerImage = assets.AddRegistry("", workerImage)
-	}
+
 	envFrom := []v1.EnvFromSource{
 		{
 			SecretRef: &v1.SecretEnvSource{
