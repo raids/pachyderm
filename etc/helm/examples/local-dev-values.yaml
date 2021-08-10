@@ -26,7 +26,7 @@ console:
     oauthClientSecret: "notsecret"
     graphqlPort: 4000
     oauthPachdClientID: "pachd"
-    pachdAddress: "pachd-peer.default.svc.cluster.local:30653"
+    pachdAddress: "pachd-peer:30653"
 
 worker:
   image:
