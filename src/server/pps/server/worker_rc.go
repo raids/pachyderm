@@ -11,7 +11,6 @@ import (
 	jsonpatch "github.com/evanphx/json-patch"
 	client "github.com/pachyderm/pachyderm/v2/src/client"
 	"github.com/pachyderm/pachyderm/v2/src/internal/config"
-	"github.com/pachyderm/pachyderm/v2/src/internal/deploy/assets"
 	"github.com/pachyderm/pachyderm/v2/src/internal/errors"
 	"github.com/pachyderm/pachyderm/v2/src/internal/errutil"
 	"github.com/pachyderm/pachyderm/v2/src/internal/ppsutil"
@@ -32,6 +31,16 @@ const (
 	pachVersionAnnotation     = "pachVersion"
 	pipelineVersionAnnotation = "pipelineVersion"
 	hashedAuthTokenAnnotation = "authTokenHash"
+	// WorkerServiceAccountEnvVar is the name of the environment variable used to tell pachd
+	// what service account to assign to new worker RCs, for the purpose of
+	// creating S3 gateway services.
+	WorkerServiceAccountEnvVar = "WORKER_SERVICE_ACCOUNT"
+	// DefaultWorkerServiceAccountName is the default value to use if WorkerServiceAccountEnvVar is
+	// undefined (for compatibility purposes)
+	DefaultWorkerServiceAccountName = "pachyderm-worker"
+	// UploadConcurrencyLimitEnvVar is the environment variable for the upload concurrency limit.
+	// EnvVar defined in src/internal/serviceenv/config.go
+	UploadConcurrencyLimitEnvVar = "STORAGE_UPLOAD_CONCURRENCY_LIMIT"
 )
 
 // Parameters used when creating the kubernetes replication controller in charge
@@ -267,9 +276,9 @@ func (a *apiServer) workerPodSpec(options *workerOptions, pipelineInfo *pps.Pipe
 	memSidecarQuantity := resource.MustParse("64M")
 
 	// Get service account name for worker from env or use default
-	workerServiceAccountName, ok := os.LookupEnv(assets.WorkerServiceAccountEnvVar)
+	workerServiceAccountName, ok := os.LookupEnv(WorkerServiceAccountEnvVar)
 	if !ok {
-		workerServiceAccountName = assets.DefaultWorkerServiceAccountName
+		workerServiceAccountName = DefaultWorkerServiceAccountName
 	}
 
 	// possibly expose s3 gateway port in the sidecar container
@@ -423,7 +432,7 @@ func (a *apiServer) workerPodSpec(options *workerOptions, pipelineInfo *pps.Pipe
 
 func (a *apiServer) getStorageEnvVars(pipelineInfo *pps.PipelineInfo) []v1.EnvVar {
 	vars := []v1.EnvVar{
-		{Name: assets.UploadConcurrencyLimitEnvVar, Value: strconv.Itoa(a.env.Config().StorageUploadConcurrencyLimit)},
+		{Name: UploadConcurrencyLimitEnvVar, Value: strconv.Itoa(a.env.Config().StorageUploadConcurrencyLimit)},
 		{Name: client.PPSPipelineNameEnv, Value: pipelineInfo.Pipeline.Name},
 	}
 	return vars
