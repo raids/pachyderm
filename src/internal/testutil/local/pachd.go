@@ -173,7 +173,8 @@ func RunLocal() (retErr error) {
 
 		if err := logGRPCServerSetup("Auth API", func() error {
 			authAPIServer, err := authserver.NewAuthServer(
-				env, txnEnv, true, requireNoncriticalServers, true)
+				authserver.EnvFromServiceEnv(env, txnEnv),
+				true, requireNoncriticalServers, true)
 			if err != nil {
 				return err
 			}
@@ -305,8 +306,7 @@ func RunLocal() (retErr error) {
 		}
 		if err := logGRPCServerSetup("Auth API", func() error {
 			authAPIServer, err := authserver.NewAuthServer(
-				env,
-				txnEnv,
+				authserver.EnvFromServiceEnv(env, txnEnv),
 				false,
 				requireNoncriticalServers,
 				true,

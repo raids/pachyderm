@@ -166,8 +166,7 @@ func doEnterpriseMode(config interface{}) (retErr error) {
 		txnEnv := &txnenv.TransactionEnv{}
 		if err := logGRPCServerSetup("Auth API", func() error {
 			authAPIServer, err := authserver.NewAuthServer(
-				env,
-				txnEnv,
+				authserver.EnvFromServiceEnv(env, txnEnv),
 				true,
 				true,
 				true,
@@ -259,8 +258,7 @@ func doEnterpriseMode(config interface{}) (retErr error) {
 		txnEnv := &txnenv.TransactionEnv{}
 		if err := logGRPCServerSetup("Auth API", func() error {
 			authAPIServer, err := authserver.NewAuthServer(
-				env,
-				txnEnv,
+				authserver.EnvFromServiceEnv(env, txnEnv),
 				false,
 				false,
 				true,
@@ -443,8 +441,7 @@ func doSidecarMode(config interface{}) (retErr error) {
 	}
 	if err := logGRPCServerSetup("Auth API", func() error {
 		authAPIServer, err := authserver.NewAuthServer(
-			env,
-			txnEnv,
+			authserver.EnvFromServiceEnv(env, txnEnv),
 			false,
 			false,
 			false,
@@ -627,7 +624,10 @@ func doFullMode(config interface{}) (retErr error) {
 
 		if err := logGRPCServerSetup("Auth API", func() error {
 			authAPIServer, err := authserver.NewAuthServer(
-				env, txnEnv, true, requireNoncriticalServers, true)
+				authserver.EnvFromServiceEnv(env, txnEnv),
+				true,
+				requireNoncriticalServers,
+				true)
 			if err != nil {
 				return err
 			}
@@ -767,8 +767,7 @@ func doFullMode(config interface{}) (retErr error) {
 		}
 		if err := logGRPCServerSetup("Auth API", func() error {
 			authAPIServer, err := authserver.NewAuthServer(
-				env,
-				txnEnv,
+				authserver.EnvFromServiceEnv(env, txnEnv),
 				false,
 				requireNoncriticalServers,
 				true,
