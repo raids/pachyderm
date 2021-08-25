@@ -123,6 +123,7 @@ func NewAuthServer(env Env, public, requireNoncriticalServers, watchesEnabled bo
 
 	s := &apiServer{
 		env:            env,
+		txnEnv:         env.TxnEnv,
 		pachLogger:     log.NewLogger("auth.API", env.Logger), // TODO this should be configured in the env
 		authConfig:     authConfigCollection(env.DB, env.Listener),
 		roleBindings:   roleBindingsCollection(env.DB, env.Listener),
@@ -317,7 +318,7 @@ func (a *apiServer) Activate(ctx context.Context, req *auth.ActivateRequest) (re
 
 	// Store a new Pachyderm token (as the caller is authenticating) and
 	// initialize the root user as a cluster admin
-	if err := a.env.TxnEnv.WithWriteContext(ctx, func(txCtx *txncontext.TransactionContext) error {
+	if err := a.txnEnv.WithWriteContext(ctx, func(txCtx *txncontext.TransactionContext) error {
 		roleBindings := a.roleBindings.ReadWrite(txCtx.SqlTx)
 		if err := roleBindings.Put(clusterRoleBindingKey, &auth.RoleBinding{
 			Entries: map[string]*auth.Roles{
@@ -352,7 +353,7 @@ func (a *apiServer) RotateRootToken(ctx context.Context, req *auth.RotateRootTok
 
 	// TODO(acohen4): Merge with postgres-integration library changes
 	var rootToken string
-	if err := a.env.TxnEnv.WithWriteContext(ctx, func(txCtx *txncontext.TransactionContext) error {
+	if err := a.txnEnv.WithWriteContext(ctx, func(txCtx *txncontext.TransactionContext) error {
 		// First revoke root's existing auth token
 		if err := a.deleteAuthTokensForSubjectInTransaction(txCtx.SqlTx, auth.RootUser); err != nil {
 			return err
