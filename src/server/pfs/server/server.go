@@ -24,11 +24,10 @@ import (
 
 // NewAPIServer creates an APIServer.
 func NewAPIServer(senv serviceenv.ServiceEnv, txnEnv *txnenv.TransactionEnv, etcdPrefix string) (pfsserver.APIServer, error) {
-	env, err := EnvFromServiceEnv(senv)
+	env, err := EnvFromServiceEnv(senv, txnEnv)
 	if err != nil {
 		return nil, err
 	}
-	env.TxnEnv = txnEnv
 	env.EtcdPrefix = etcdPrefix
 	a, err := newAPIServer(*env)
 	if err != nil {

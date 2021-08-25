@@ -11,10 +11,8 @@ import (
 	"strings"
 	"time"
 
-	etcd "github.com/coreos/etcd/clientv3"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/types"
-	"github.com/jmoiron/sqlx"
 	"github.com/pachyderm/pachyderm/v2/src/auth"
 	"github.com/pachyderm/pachyderm/v2/src/client"
 	col "github.com/pachyderm/pachyderm/v2/src/internal/collection"
@@ -24,7 +22,6 @@ import (
 	"github.com/pachyderm/pachyderm/v2/src/internal/miscutil"
 	"github.com/pachyderm/pachyderm/v2/src/internal/obj"
 	"github.com/pachyderm/pachyderm/v2/src/internal/pfsload"
-	"github.com/pachyderm/pachyderm/v2/src/internal/serviceenv"
 	"github.com/pachyderm/pachyderm/v2/src/internal/storage/chunk"
 	"github.com/pachyderm/pachyderm/v2/src/internal/storage/fileset"
 	"github.com/pachyderm/pachyderm/v2/src/internal/storage/metrics"
@@ -32,56 +29,10 @@ import (
 	"github.com/pachyderm/pachyderm/v2/src/internal/transactionenv/txncontext"
 	"github.com/pachyderm/pachyderm/v2/src/internal/uuid"
 	"github.com/pachyderm/pachyderm/v2/src/pfs"
-	authserver "github.com/pachyderm/pachyderm/v2/src/server/auth"
 	pfsserver "github.com/pachyderm/pachyderm/v2/src/server/pfs"
-	ppsserver "github.com/pachyderm/pachyderm/v2/src/server/pps"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"gopkg.in/yaml.v2"
 )
-
-// Env is the dependencies needed to run the PFS API server
-type Env struct {
-	ObjectClient obj.Client
-	DB           *sqlx.DB
-	EtcdPrefix   string
-	EtcdClient   *etcd.Client
-	TxnEnv       *txnenv.TransactionEnv
-	Listener     col.PostgresListener
-
-	AuthServer authserver.APIServer
-	// TODO: a reasonable repo metadata solution would let us get rid of this circular dependency
-	// permissions might also work.
-	PPSServer ppsserver.APIServer
-
-	BackgroundContext context.Context
-	Logger            *logrus.Logger
-	StorageConfig     serviceenv.StorageConfiguration
-}
-
-func EnvFromServiceEnv(env serviceenv.ServiceEnv) (*Env, error) {
-	// Setup etcd, object storage, and database clients.
-	objClient, err := obj.NewClient(env.Config().StorageBackend, env.Config().StorageRoot)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Env{
-		ObjectClient: objClient,
-		DB:           env.GetDBClient(),
-		TxnEnv:       nil, // Set by NewAPIServer
-		Listener:     env.GetPostgresListener(),
-		EtcdPrefix:   env.Config().PFSEtcdPrefix,
-		EtcdClient:   env.GetEtcdClient(),
-
-		AuthServer: env.AuthServer(),
-		PPSServer:  env.PpsServer(),
-
-		BackgroundContext: env.Context(),
-		StorageConfig:     env.Config().StorageConfiguration,
-		Logger:            logrus.StandardLogger(),
-	}, nil
-}
 
 // apiServer implements the public interface of the Pachyderm File System,
 // including all RPCs defined in the protobuf spec.  Implementation details
