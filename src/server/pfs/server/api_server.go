@@ -795,8 +795,7 @@ func (a *apiServer) RenewFileSet(ctx context.Context, req *pfs.RenewFileSetReque
 func (a *apiServer) RunLoadTest(ctx context.Context, req *pfs.RunLoadTestRequest) (_ *pfs.RunLoadTestResponse, retErr error) {
 	func() { a.Log(nil, nil, nil, 0) }()
 	defer func(start time.Time) { a.Log(nil, nil, retErr, time.Since(start)) }(time.Now())
-	//pachClient := a.env.GetPachClient(ctx)
-	var pachClient *client.APIClient = nil
+	pachClient := a.env.PachClient
 	repo := "load_test"
 	if req.Branch != nil {
 		repo = req.Branch.Repo.Name

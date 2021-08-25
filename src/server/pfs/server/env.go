@@ -3,6 +3,7 @@ package server
 import (
 	etcd "github.com/coreos/etcd/clientv3"
 	"github.com/jmoiron/sqlx"
+	"github.com/pachyderm/pachyderm/v2/src/client"
 	col "github.com/pachyderm/pachyderm/v2/src/internal/collection"
 	"github.com/pachyderm/pachyderm/v2/src/internal/obj"
 	"github.com/pachyderm/pachyderm/v2/src/internal/serviceenv"
@@ -26,6 +27,8 @@ type Env struct {
 	// TODO: a reasonable repo metadata solution would let us get rid of this circular dependency
 	// permissions might also work.
 	PPSServer ppsserver.APIServer
+	// TODO: remove this, the load tests need a pachClient
+	PachClient *client.APIClient
 
 	BackgroundContext context.Context
 	Logger            *logrus.Logger
@@ -49,6 +52,7 @@ func EnvFromServiceEnv(env serviceenv.ServiceEnv, txnEnv *txnenv.TransactionEnv)
 
 		AuthServer: env.AuthServer(),
 		PPSServer:  env.PpsServer(),
+		PachClient: env.GetPachClient(env.Context()),
 
 		BackgroundContext: env.Context(),
 		StorageConfig:     env.Config().StorageConfiguration,
