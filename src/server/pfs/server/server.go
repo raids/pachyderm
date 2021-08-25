@@ -48,7 +48,7 @@ func NewTestServer(t testing.TB) pfs.APIServer {
 		require.NoError(t, err)
 		_, err = tx.Exec(`CREATE SCHEMA collections`)
 		require.NoError(t, err)
-		require.NoError(t, fileset.SetupPostgresStoreV0(tx))
+		require.NoError(t, fileset.SetupPostgresStoreV0(ctx, tx))
 		require.NoError(t, chunk.SetupPostgresStoreV0(tx))
 		require.NoError(t, collection.SetupPostgresCollections(ctx, tx))
 		require.NoError(t, collection.SetupPostgresV0(ctx, tx))
