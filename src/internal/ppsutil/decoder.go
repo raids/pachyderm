@@ -10,10 +10,34 @@ import (
 	"os"
 	"unicode"
 
+	"github.com/google/go-jsonnet"
 	"github.com/pachyderm/pachyderm/v2/src/internal/errors"
 	"github.com/pachyderm/pachyderm/v2/src/internal/serde"
 	ppsclient "github.com/pachyderm/pachyderm/v2/src/pps"
 )
+
+type PipelineTemplateReader struct {
+	bytes []byte
+}
+
+func NewPipelineTemplateReader(path string, params map[string]string) (*PipelineTemplateReader, error) {
+	var pipelineBytes []byte
+	if path == "-" {
+		// stdin
+		fmt.Print("Reading from stdin.\n")
+		var err error
+		pipelineBytes, err = ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			return nil, err
+		}
+	} else if url, err := url.Parse(path); err == nil && url.Scheme != "" {
+		//
+	}
+
+	// as jsonnet is executable (not just text subsitution) jsonnet templates
+	// need to be computed during evaluation
+	vm := jsonnet.MakeVM()
+}
 
 // PipelineManifestReader helps with unmarshalling pipeline configs from JSON.
 // It's used by 'create pipeline' and 'update pipeline'

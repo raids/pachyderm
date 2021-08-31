@@ -33,6 +33,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.2
+	github.com/google/go-jsonnet v0.17.0 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/grafana/loki v1.5.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.1-0.20191002090509-6af20e3a5340
