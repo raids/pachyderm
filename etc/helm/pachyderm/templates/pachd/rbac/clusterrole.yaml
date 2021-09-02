@@ -48,4 +48,15 @@ rules:
   - update
   - delete
   - deletecollection
+- apiGroups:
+  - pps.pachyderm.io
+  resources:
+  - pipelines
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
 {{ end -}}

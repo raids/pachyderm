@@ -41,7 +41,7 @@ func NewAPIServer(
 		gcPercent:             env.Config().GCPercent,
 	}
 	apiServer.validateKube()
-	go apiServer.master()
+	//go apiServer.master()
 	return apiServer, nil
 }
 
