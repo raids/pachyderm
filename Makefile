@@ -213,6 +213,7 @@ clean-launch: check-kubectl
 	# Helm won't clean statefulset PVCs by design
 	kubectl delete pvc -l suite=pachyderm
 	kubectl delete pvc -l suite=pachyderm -n enterprise
+	kubectl delete pipelines --all
 
 test-proto-static:
 	./etc/proto/test_no_changes.sh || echo "Protos need to be recompiled; run 'DOCKER_BUILD_FLAGS=--no-cache make proto'."

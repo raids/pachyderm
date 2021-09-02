@@ -15,6 +15,9 @@ pachd:
     enabled: false
   clusterDeploymentID: dev
   enterpriseLicenseKey: ""
+  storage:
+    local:
+      hostPath: "/var/pachyderm/"
 
 console:
   enabled: false
