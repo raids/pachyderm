@@ -832,7 +832,7 @@ func (a *apiServer) RunLoadTest(ctx context.Context, req *pfs.RunLoadTestRequest
 
 func (a *apiServer) runLoadTest(pachClient *client.APIClient, branch *pfs.Branch, specStr string, seed int64) error {
 	spec := &pfsload.CommitsSpec{}
-	if err := serde.DecodeYAML([]byte(specStr), spec); err != nil {
+	if err := serde.Decode([]byte(specStr), spec); err != nil {
 		return err
 	}
 	return pfsload.Commits(pachClient, branch.Repo.Name, branch.Name, spec, seed)
